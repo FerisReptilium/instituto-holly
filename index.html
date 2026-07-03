@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instituto Holly | Homenagem & Cuidado Animal</title>
+    <meta name="description" content="Portal memorial dedicado à cachorrinha Holly. Informações de biologia canina, cuidados para Shih Tzu, fórum comunitário com banco de dados e chatbot de IA.">
+    
+    <!-- SEO & Open Graph -->
+    <meta property="og:title" content="Instituto Holly | Homenagem & Cuidado Animal">
+    <meta property="og:description" content="Transformando a saudade de uma Shih Tzu em amor e cuidado. Dicas, notícias, fórum com banco de dados e chatbot de IA.">
+    <meta property="og:image" content="./assets/holly_1.jpg">
+    <meta property="og:type" content="website">
+    
+    <!-- Google Fonts: Lora (Serif) & Inter (Sans-Serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- QRIous QR Code Generator JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+<body class="light-mode">
+    
+    <!-- Top Progress Bar -->
+    <div id="progress-bar" class="progress-bar"></div>
+
+    <!-- Header / Navbar -->
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="#" class="logo" id="logo-link">
+                <img src="./assets/holly_1.jpg" alt="Mascote Holly" class="logo-img">
+                <div class="logo-text">
+                    <span class="logo-title">Instituto Holly</span>
+                    <span class="logo-subtitle">Memorial & Advocacia Animal</span>
+                </div>
+            </a>
+            
+            <nav class="main-nav" id="main-nav">
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active" id="nav-home">Início</a></li>
+                    <li><a href="#cuidados" class="nav-link" id="nav-cuidados">Cuidados & Vídeos</a></li>
+                    <li><a href="#noticias" class="nav-link" id="nav-noticias">Notícias & Biologia</a></li>
+                    <li><a href="#forum" class="nav-link" id="nav-forum">Fórum</a></li>
+                    <li><a href="#contato" class="nav-link" id="nav-contato">Doação & Contato</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <!-- User Account Button -->
+                <button id="auth-btn" class="btn btn-secondary btn-nav-auth" title="Entrar na conta">
+                    <svg class="auth-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span id="auth-btn-text">Entrar</span>
+                </button>
+
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+                    <!-- Sun Icon -->
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    <!-- Moon Icon -->
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                </button>
+                <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Abrir menu de navegação">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main>
+        
+        <!-- Section: Home / Memorial -->
+        <section id="home" class="section hero-section">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <span class="badge" id="hero-badge">Em Memória de Holly ✨</span>
+                    <h1 class="hero-title">Transformando a saudade em <span>ciência e cuidado</span> animal</h1>
+                    <p class="hero-description">
+                        A nossa adorável Shih Tzu Holly partiu, mas o seu legado de afeto se tornou um portal de amparo técnico. Reunimos dicas de veterinários especialistas, artigos científicos e uma comunidade comprometida com o bem-estar e a saúde dos cães.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#cuidados" class="btn btn-primary" id="btn-explore">Guia de Cuidados</a>
+                        <button class="btn btn-secondary" id="btn-story">A História de Holly</button>
+                    </div>
+                </div>
+                <div class="hero-image-container">
+                    <div class="timeline-widget">
+                        <div class="timeline-image-wrapper">
+                            <img src="./assets/holly_1.jpg" alt="Holly filhote" class="timeline-active-img" id="timeline-main-img">
+                            <div class="timeline-caption-overlay">
+                                <h4 id="timeline-phase-title">A Chegada da Holly 🐾</h4>
+                                <p id="timeline-phase-desc">Holly chegou bem pequenininha em nossas vidas, trazendo uma doçura sem tamanho e espalhando amor com sua linguinha de fora e seu jeito sapeca.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-tabs">
+                            <button class="timeline-tab-btn active" data-phase="chegada" data-img="./assets/holly_1.jpg" data-title="A Chegada da Holly 🐾" data-desc="Holly chegou bem pequenininha em nossas vidas, trazendo uma doçura sem tamanho e espalhando amor com sua linguinha de fora e seu jeito sapeca.">
+                                <span>Filhote</span>
+                            </button>
+                            <button class="timeline-tab-btn" data-phase="crescimento" data-img="./assets/holly_23.jpg" data-title="Crescimento & Estilo 🎀" data-desc="Conforme ela crescia, revelava-se uma Shih Tzu vaidosa! Adorava lacinhos (verde, rosa, azul) e era a companheira perfeita para todas as horas no colo.">
+                                <span>Jovem</span>
+                            </button>
+                            <button class="timeline-tab-btn" data-phase="cuidados" data-img="./assets/holly_26.jpg" data-title="SPA e Cuidados 🩺" data-desc="Uma rotina cheia de amor: Holly amava seus banhos relaxantes na banheira ('hora do SPA') e a escovação carinhosa de seus pelos sedosos.">
+                                <span>Cuidados</span>
+                            </button>
+                            <button class="timeline-tab-btn" data-phase="legado" data-img="./assets/holly_15.jpg" data-title="O Legado Eterno ✨" data-desc="Holly amava tirar suas sonecas coberta no edredom. Hoje, sua história inspira este portal de cuidados dedicados a prolongar a vida dos cães.">
+                                <span>Legado</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal: A História de Holly -->
+        <div id="story-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="story-modal-title">
+            <div class="modal-content">
+                <button class="close-modal" id="close-modal" aria-label="Fechar modal de história">&times;</button>
+                <div class="modal-header">
+                    <img src="./assets/holly_1.jpg" alt="Mascote Holly" class="modal-avatar">
+                    <div>
+                        <h2 id="story-modal-title">A História da Holly</h2>
+                        <p class="subtitle">Uma Shih Tzu que nos ensinou sobre a essência do amor puro</p>
+                    </div>
+                </div>
+                <div class="modal-body text-justify">
+                    <p class="modal-intro-text">
+                        A nossa adorável Shih Tzu <strong>Holly</strong> chegou às nossas vidas como um pequeno raio de sol e partiu deixando uma saudade eterna. Conheça as fases da sua vida e a linda trajetória que inspirou a criação deste portal.
+                    </p>
+                    
+                    <div class="vertical-timeline">
+                        <!-- Step 1 -->
+                        <div class="timeline-step">
+                            <div class="timeline-marker">🐾</div>
+                            <div class="timeline-content-card">
+                                <span class="timeline-date">Fase 1: A Chegada (Filhote)</span>
+                                <h3>Um Pequeno Anjo em Casa</h3>
+                                <p>Holly chegou bem pequenininha, com sua pelagem caramelo e branca macia, e imediatamente conquistou a todos. Ela era dócil, sapeca e tinha a mania adorável de dormir de barriguinha para cima na cama, espalhando amor com sua linguinha sempre um pouco para fora.</p>
+                                <div class="timeline-media-grid">
+                                    <img src="./assets/holly_1.jpg" alt="Holly Filhote com língua de fora" class="timeline-thumb">
+                                    <img src="./assets/holly_2.jpg" alt="Holly Filhote dormindo de barriga para cima" class="timeline-thumb">
+                                    <img src="./assets/holly_19.jpg" alt="Holly Filhote dormindo de barriguinha para cima" class="timeline-thumb">
+                                    <img src="./assets/holly_32.jpg" alt="Holly Filhote deitada de costas" class="timeline-thumb">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="timeline-step">
+                            <div class="timeline-marker">🎀</div>
+                            <div class="timeline-content-card">
+                                <span class="timeline-date">Fase 2: O Crescimento</span>
+                                <h3>Crescendo com Estilo e Vaidade</h3>
+                                <p>Conforme crescia, Holly se tornou uma Shih Tzu muito charmosa e vaidosa. Seus tutores adoravam enfeitar seus cabelos com lacinhos coloridos (rosa, azul, verde). Ela era a companheira perfeita para todas as horas, amava tirar fotos fazendo poses charmosas e brincar com seu brinquedo favorito (o ratinho vermelho).</p>
+                                <div class="timeline-media-grid">
+                                    <img src="./assets/holly_23.jpg" alt="Holly jovem com vestidinho azul" class="timeline-thumb">
+                                    <img src="./assets/holly_18.jpg" alt="Holly jovem com lacinhos vermelhos" class="timeline-thumb">
+                                    <img src="./assets/holly_28.jpg" alt="Holly com chapéu de mago" class="timeline-thumb">
+                                    <img src="./assets/holly_20.jpg" alt="Holly brincando no balanço" class="timeline-thumb">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="timeline-step">
+                            <div class="timeline-marker">🧼</div>
+                            <div class="timeline-content-card">
+                                <span class="timeline-date">Fase 3: Hora do SPA</span>
+                                <h3>Cuidados de Realeza</h3>
+                                <p>Holly recebia cuidados dignos de uma princesa. A rotina de beleza contava com banhos refrescantes em sua banheira ("hora do SPA"), escovações caprichadas e cortes especiais de pelo (tosa bebê) que a deixavam leve e confortável para brincar.</p>
+                                <div class="timeline-media-grid">
+                                    <img src="./assets/holly_24.jpg" alt="Holly sendo escovada" class="timeline-thumb">
+                                    <img src="./assets/holly_26.jpg" alt="Holly molhada na banheira" class="timeline-thumb">
+                                    <img src="./assets/holly_27.jpg" alt="Holly no banho olhando para cima" class="timeline-thumb">
+                                    <img src="./assets/holly_25.jpg" alt="Holly tosada com lacinho roxo" class="timeline-thumb">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="timeline-step">
+                            <div class="timeline-marker">✨</div>
+                            <div class="timeline-content-card">
+                                <span class="timeline-date">Fase 4: Maturidade e Legado</span>
+                                <h3>Eterna em Nossos Corações</h3>
+                                <p>Em sua maturidade, Holly era a rainha da casa, muito paparicada. Seus momentos favoritos eram as longas sonecas sob edredons e cobertores quentinhos. Ela partiu para virar uma estrelinha, mas sua história e o amor que ela nos ensinou inspiraram a fundação do <strong>Instituto Holly</strong>, criado para amparar outros tutores e proteger os pets.</p>
+                                <div class="timeline-media-grid">
+                                    <img src="./assets/holly_5.jpg" alt="Holly no colo com edredom" class="timeline-thumb">
+                                    <img src="./assets/holly_14.jpg" alt="Holly deitada no sofá" class="timeline-thumb">
+                                    <img src="./assets/holly_15.jpg" alt="Holly com brinquedo de ratinho" class="timeline-thumb">
+                                    <img src="./assets/holly_17.jpg" alt="Holly enrolada no cobertor" class="timeline-thumb">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="memorial-tribute-action">
+                        <h3>Acender uma Vela em Memória</h3>
+                        <p>Una-se à nossa comunidade prestando uma homenagem silenciosa à Holly e a todas as mascotes que viraram estrelas. Cada vela acesa representa uma promessa de carinho e proteção.</p>
+                        <div class="candle-widget">
+                            <div class="candle-container" id="candle-trigger">
+                                <div class="candle-wax"></div>
+                                <div class="candle-wick"></div>
+                                <div class="candle-flame" id="candle-flame"></div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-light-candle">Acender Vela Virtual</button>
+                            <span class="candle-counter">Velas acesas: <strong id="candle-count-val">1.240</strong></span>
+                        </div>
+                    </div>
+
+                    <blockquote>
+                        "Os cães não falam, mas seus olhos expressam tudo aquilo que as palavras não conseguem descrever."
+                    </blockquote>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="modal-close-btn" aria-label="Voltar para a página">Voltar ao Portal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Autenticação (Login / Registro) -->
+        <div id="auth-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+            <div class="modal-content auth-modal-content">
+                <button class="close-modal" id="close-auth-modal" aria-label="Fechar modal de autenticação">&times;</button>
+                
+                <!-- Login State Container -->
+                <div id="login-container" class="auth-sub-container">
+                    <h2 class="auth-title" id="auth-modal-title">Entrar na Comunidade</h2>
+                    <p class="auth-subtitle">Participe das discussões e tire dúvidas no nosso fórum.</p>
+                    
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Endereço de E-mail</label>
+                            <input type="email" id="login-email" required placeholder="seu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Senha de Acesso</label>
+                            <input type="password" id="login-password" required placeholder="Digite sua senha">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" aria-label="Acessar conta">Acessar Conta</button>
+                    </form>
+                    <p class="auth-switch">Não possui uma conta? <button id="switch-to-signup" class="btn-link" aria-label="Criar cadastro">Cadastre-se</button></p>
+                </div>
+
+                <!-- Signup State Container -->
+                <div id="signup-container" class="auth-sub-container" style="display: none;">
+                    <h2 class="auth-title">Criar Nova Conta</h2>
+                    <p class="auth-subtitle">Cadastre-se rapidamente para poder publicar e comentar no fórum.</p>
+                    
+                    <form id="signup-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="signup-name">Nome Completo / Apelido</label>
+                            <input type="text" id="signup-name" required placeholder="Ex: Ana Souza">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Endereço de E-mail</label>
+                            <input type="email" id="signup-email" required placeholder="seu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Criar uma Senha</label>
+                            <input type="password" id="signup-password" required placeholder="Mínimo de 6 caracteres">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" aria-label="Registrar conta">Registrar Conta</button>
+                    </form>
+                    <p class="auth-switch">Já é cadastrado? <button id="switch-to-login" class="btn-link" aria-label="Fazer login">Faça Login</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Cuidados & Vídeos -->
+        <section id="cuidados" class="section cuidados-section bg-alt">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="badge">Práticas Baseadas em Evidência</span>
+                    <h2 class="section-title">Manual de Cuidados Caninos</h2>
+                    <p class="section-subtitle">Instruções essenciais de veterinários para zelar pela integridade física e emocional do seu cão.</p>
+                </div>
+
+                <!-- Care Categories Cards -->
+                <div class="care-grid">
+                    <div class="care-card reveal-item">
+                        <div class="care-icon color-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <h3>Nutrição & Dietas</h3>
+                        <p>Dicas sobre rações super premium, formulação de alimentação natural balanceada e a prevenção de intoxicações severas.</p>
+                        <a href="#noticias" class="card-link">Estudo de nutrição <span class="arrow">&rarr;</span></a>
+                    </div>
+                    
+                    <div class="care-card reveal-item">
+                        <div class="care-icon color-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2.5 3.19-2.5 5.5h20c0-2.31-1-4.24-2.5-5.5"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Z"/><path d="M12 7v10M7 12h10"/></svg>
+                        </div>
+                        <h3>Saúde de Shih Tzus</h3>
+                        <p>Orientações específicas sobre cuidados com olhos, pele, prevenção de dermatites e limpeza do focinho branquicefálico.</p>
+                        <a href="#noticias" class="card-link">Manual da raça <span class="arrow">&rarr;</span></a>
+                    </div>
+                    
+                    <div class="care-card reveal-item">
+                        <div class="care-icon color-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 10c-3.86 0-7 2.24-7 5 0 .82.28 1.6.78 2.26C4.91 18.55 4 20 4 20s2.5-.5 4.5-1.54c1 .35 2.12.54 3.5.54 3.86 0 7-2.24 7-5s-3.14-5-7-5Z"/><circle cx="12" cy="5" r="2"/></svg>
+                        </div>
+                        <h3>Comportamento & Estresse</h3>
+                        <p>Como interpretar sinais corporais de medo, dor, relaxamento e táticas para amenizar a ansiedade de separação.</p>
+                        <a href="#noticias" class="card-link">Linguagem canina <span class="arrow">&rarr;</span></a>
+                    </div>
+
+                    <div class="care-card reveal-item">
+                        <div class="care-icon color-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+                        </div>
+                        <h3>Enriquecimento Cognitivo</h3>
+                        <p>Métodos práticos de cansaço mental positivo, brinquedos de estímulo olfativo e adaptação do lar para cães idosos.</p>
+                        <a href="#noticias" class="card-link">Ideias de atividades <span class="arrow">&rarr;</span></a>
+                    </div>
+                </div>
+
+                <!-- Age Calculator Widget -->
+                <div class="calculator-wrapper reveal-item">
+                    <div class="calculator-container">
+                        <div class="calc-info">
+                            <span class="badge">Ferramenta Interativa</span>
+                            <h3>Calculadora de Idade Canina (Shih Tzu)</h3>
+                            <p>Os cães de pequeno porte envelhecem de forma diferente dos cães grandes. Insira a idade real do seu Shih Tzu abaixo para descobrir seu equivalente em anos humanos e receber conselhos de saúde especializados.</p>
+                        </div>
+                        <div class="calc-box">
+                            <div class="form-group">
+                                <label for="dog-age-input">Idade do cão (em anos)</label>
+                                <input type="number" id="dog-age-input" min="1" max="25" value="5" placeholder="Ex: 5">
+                            </div>
+                            <div class="calc-results">
+                                <div class="result-number">
+                                    <span id="human-age-val">36</span>
+                                    <label>Anos Humanos</label>
+                                </div>
+                                <div class="result-feedback">
+                                    <span class="phase-badge" id="calc-phase-badge">Adulto</span>
+                                    <p id="calc-advice-text">Seu pet está no auge da maturidade. Foco em alimentação saudável e visitas anuais ao veterinário para check-up de dentes e articulações.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Gallery -->
+                <div class="video-gallery-wrapper">
+                    <h3 class="gallery-title text-center">Vídeo-Aulas Recomendadas</h3>
+                    <div class="video-grid">
+                        
+                        <!-- Video Card 1 -->
+                        <div class="video-card reveal-item">
+                            <div class="video-iframe-container">
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/lyQGj8Y52Sc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-tag">Tudo Sobre Shih Tzu</span>
+                                <h4>Guia Completo da Raça Shih Tzu</h4>
+                                <p>Tudo sobre o comportamento, temperamento, e os cuidados específicos de higiene e saúde que a raça exige.</p>
+                            </div>
+                        </div>
+
+                        <!-- Video Card 2 -->
+                        <div class="video-card reveal-item">
+                            <div class="video-iframe-container">
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/gcy8Um6zh5Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-tag">Erros Comuns</span>
+                                <h4>Erros que você deve evitar com Shih Tzu</h4>
+                                <p>Erros graves na rotina de alimentação, escovação de pelos e exercícios que prejudicam a saúde desta raça.</p>
+                            </div>
+                        </div>
+
+                        <!-- Video Card 3 -->
+                        <div class="video-card reveal-item">
+                            <div class="video-iframe-container">
+                                <iframe width="560" height="315" src="https://www.youtube.com/embed/bW2j_noiXKE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <div class="video-info">
+                                <span class="video-tag">Saúde Geral</span>
+                                <h4>Como Saber se o seu Cachorro está Sentindo Dor</h4>
+                                <p>Aprenda a notar micro-sinais sutis no olhar, postura e respiração que indicam mal-estar nos pets.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: Notícias & Biologia -->
+        <section id="noticias" class="section noticias-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="badge">Artigos & Divulgação Científica</span>
+                    <h2 class="section-title">Ciência e Biologia Canina</h2>
+                    <p class="section-subtitle">Pesquisas veterinárias e biológicas traduzidas de maneira simples para auxiliar na saúde do seu melhor amigo.</p>
+                </div>
+
+                <div class="articles-grid">
+                    
+                    <!-- Article 1 -->
+                    <article class="news-card reveal-item">
+                        <div class="news-img-placeholder" style="background-image: linear-gradient(135deg, #1E293B, #334155);">
+                            <span class="news-emoji">🧠</span>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span class="news-date">02 de Julho, 2026</span>
+                                <span class="news-category">Neurobiologia</span>
+                            </div>
+                            <h3>A Química do Amor: O Efeito da Ocitocina nos Olhos Caninos</h3>
+                            <p>Pesquisas moleculares comprovam que a troca de olhares suaves entre humanos e cães estimula a liberação mútua de ocitocina, hormônio catalisador de vínculos e segurança emocional.</p>
+                            <button class="read-more-btn" data-article="1">Ler Estudo <span class="arrow">&rarr;</span></button>
+                        </div>
+                    </article>
+
+                    <!-- Article 2 -->
+                    <article class="news-card reveal-item">
+                        <div class="news-img-placeholder" style="background-image: linear-gradient(135deg, #1F3A2B, #2A4B3D);">
+                            <span class="news-emoji">🍎</span>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span class="news-date">30 de Junho, 2026</span>
+                                <span class="news-category">Nutrição</span>
+                            </div>
+                            <h3>Uvas, Chocolate e Cebola: Por que são Tóxicos para os Cães?</h3>
+                            <p>Análise química das substâncias teobromina e dissulfeto de n-propila. Entenda como estes elementos danificam rins e destroem glóbulos vermelhos nos cães.</p>
+                            <button class="read-more-btn" data-article="2">Ler Estudo <span class="arrow">&rarr;</span></button>
+                        </div>
+                    </article>
+
+                    <!-- Article 3 -->
+                    <article class="news-card reveal-item">
+                        <div class="news-img-placeholder" style="background-image: linear-gradient(135deg, #475569, #64748B);">
+                            <span class="news-emoji">🩺</span>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span class="news-date">28 de Junho, 2026</span>
+                                <span class="news-category">Saúde</span>
+                            </div>
+                            <h3>Entendendo as Vacinas Múltiplas (V8 e V10): Como Elas Agem</h3>
+                            <p>A imunologia por trás das doses veterinárias. Saiba como o organismo canino produz anticorpos específicos para combater cinomose e parvovirose antes da exposição viral.</p>
+                            <button class="read-more-btn" data-article="3">Ler Estudo <span class="arrow">&rarr;</span></button>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Article Detail Overlay Modal -->
+        <div id="article-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal" id="close-article-modal">&times;</button>
+                <div class="modal-body" id="article-modal-body">
+                    <!-- Dynamic content filled by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Fórum da Comunidade -->
+        <section id="forum" class="section forum-section bg-alt">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="badge">Comunidade Conectada</span>
+                    <h2 class="section-title">Fórum de Discussões</h2>
+                    <p class="section-subtitle">Esclareça dúvidas sobre tratamentos, cuidados gerais e troque conselhos práticos com a comunidade.</p>
+                </div>
+
+                <div class="forum-layout">
+                    <!-- Forum Sidebar / Form -->
+                    <div class="forum-form-container">
+                        <h3>Nova Discussão</h3>
+                        
+                        <!-- Logged Out Message -->
+                        <div id="forum-logged-out-msg" class="forum-notice-box">
+                            <p>Você precisa estar conectado para poder iniciar um tópico ou enviar comentários no fórum.</p>
+                            <button class="btn btn-primary btn-block" id="btn-forum-login">Fazer Login / Cadastrar</button>
+                        </div>
+
+                        <!-- Logged In Form -->
+                        <form id="new-post-form" class="forum-form" style="display: none;">
+                            <div class="form-logged-user">
+                                <span class="user-badge-label">Tutor Ativo:</span>
+                                <span id="logged-user-name" class="user-badge-name">...</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="post-title">Título do Tópico</label>
+                                <input type="text" id="post-title" required placeholder="Qual o tema da discussão?">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="post-category">Categoria do Assunto</label>
+                                <select id="post-category" required>
+                                    <option value="Dúvidas">Dúvida de Saúde</option>
+                                    <option value="Comportamento">Comportamento & Adestramento</option>
+                                    <option value="Alimentação">Alimentação & Ração</option>
+                                    <option value="Homenagens">Homenagem / Memorial</option>
+                                    <option value="Outros">Outros Assuntos</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="post-content">Conteúdo da Postagem</label>
+                                <textarea id="post-content" rows="6" required placeholder="Descreva aqui os detalhes da sua dúvida ou história..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-submit-post">Publicar no Fórum</button>
+                        </form>
+                    </div>
+
+                    <!-- Forum Posts Feed -->
+                    <div class="forum-feed-container">
+                        <div class="feed-header">
+                            <h3>Discussões Recentes</h3>
+                            <div class="feed-filters">
+                                <button class="filter-btn active" data-filter="all">Todas</button>
+                                <button class="filter-btn" data-filter="Dúvidas">Dúvidas</button>
+                                <button class="filter-btn" data-filter="Comportamento">Comportamento</button>
+                                <button class="filter-btn" data-filter="Homenagens">Homenagens</button>
+                            </div>
+                        </div>
+                        
+                        <div id="forum-posts" class="forum-posts-list">
+                            <!-- Dynamic Posts filled by JS (Supabase or localStorage fallback) -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: Doação & Contato -->
+        <section id="contato" class="section contato-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="badge">Apoie a Causa</span>
+                    <h2 class="section-title">Donativos & Fale Conosco</h2>
+                    <p class="section-subtitle">Nossa ONG é 100% digital e sem fins lucrativos. Sua ajuda financia materiais de conscientização contra maus-tratos e guias de saúde pet.</p>
+                </div>
+
+                <!-- Donation Card (PIX Widget) -->
+                <div class="donation-container">
+                    <div class="donation-card-layout">
+                        <div class="donation-qr-wrapper">
+                            <div class="canvas-qrcode-container">
+                                <canvas id="pix-qrcode" class="pix-qr-canvas" width="180" height="180" aria-label="QR Code PIX para doações"></canvas>
+                            </div>
+                            <span class="donation-qr-note">Escaneie o QR Code acima</span>
+                        </div>
+                        <div class="donation-details">
+                            <span class="donation-subtitle">Contribuição via PIX</span>
+                            <h3>Apoie o Instituto Holly</h3>
+                            <p>Qualquer valor doado nos ajuda a manter a IA ativa sem custos e os materiais didáticos gratuitos no ar.</p>
+                            
+                            <div class="pix-key-wrapper">
+                                <span class="pix-key-label">Chave PIX E-mail:</span>
+                                <div class="pix-key-box">
+                                    <code id="pix-key-text">doacoes@institutoholly.org</code>
+                                    <button id="btn-copy-pix" class="btn-copy" title="Copiar chave PIX">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        <span id="copy-feedback">Copiar</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-grid">
+                    <div class="contact-info-cards">
+                        <!-- Instagram Link Card -->
+                        <a href="https://instagram.com/institutoholly_ngo" target="_blank" rel="noopener" class="contact-card" id="contact-insta">
+                            <div class="contact-icon insta-color">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"/></svg>
+                            </div>
+                            <div>
+                                <h3>Instagram Oficial</h3>
+                                <p>@institutoholly_ngo</p>
+                                <span class="action-text">Postagens informativas diárias &rarr;</span>
+                            </div>
+                        </a>
+
+                        <!-- Telegram Link Card -->
+                        <a href="https://t.me/institutoholly" target="_blank" rel="noopener" class="contact-card" id="contact-telegram">
+                            <div class="contact-icon telegram-color">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            </div>
+                            <div>
+                                <h3>Canal no Telegram</h3>
+                                <p>t.me/institutoholly</p>
+                                <span class="action-text">Alertas rápidos sobre saúde &rarr;</span>
+                            </div>
+                        </a>
+
+                        <!-- E-mail Direct Contact -->
+                        <div class="contact-card no-link">
+                            <div class="contact-icon email-color">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            </div>
+                            <div>
+                                <h3>Suporte por E-mail</h3>
+                                <p>contato@institutoholly.org</p>
+                                <span class="action-text">Atendimento institucional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="contact-form-wrapper">
+                        <h3>Mensagem Direta</h3>
+                        <form id="contact-form" class="contact-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contact-name">Seu Nome</label>
+                                    <input type="text" id="contact-name" required placeholder="Ex: Lucas Silva">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-email">E-mail</label>
+                                    <input type="email" id="contact-email" required placeholder="Ex: lucas@email.com">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="contact-subject">Assunto</label>
+                                <input type="text" id="contact-subject" required placeholder="Sobre o que quer falar?">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contact-message">Conteúdo</label>
+                                <textarea id="contact-message" rows="5" required placeholder="Digite sua mensagem aqui..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btn-send-contact">Enviar Mensagem</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo footer-logo">
+                    <img src="./assets/holly_1.jpg" alt="Mascote Holly" class="logo-img">
+                    <span class="logo-title">Instituto Holly</span>
+                </a>
+                <p class="footer-desc">
+                    Associação digital dedicada à memória da cachorrinha Holly. Nossa causa é levar ciência veterinária de alta qualidade a tutores, incentivando a proteção integral contra o abandono e abusos.
+                </p>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#cuidados">Dicas & Vídeos</a></li>
+                    <li><a href="#noticias">Notícias & Biologia</a></li>
+                    <li><a href="#forum">Fórum Comunitário</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-newsletter">
+                <h4>Inscreva-se em Nosso Boletim</h4>
+                <p>Curiosidades científicas sobre animais de estimação direto no seu e-mail.</p>
+                <form id="newsletter-form" class="newsletter-form">
+                    <input type="email" id="newsletter-email" required placeholder="Seu e-mail">
+                    <button type="submit" class="btn btn-primary" id="btn-newsletter">Inscrever</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Instituto Holly. Em homenagem à eterna Holly. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- AI Chatbot Widget (Floating Round Button + Panel) -->
+    <div id="ai-chatbot-widget" class="ai-chatbot-widget">
+        
+        <!-- Chat Toggle Button -->
+        <button id="chat-toggle" class="chat-toggle-btn" aria-label="Abrir Assistente Virtual" title="Assistente Holly AI">
+            <img src="./assets/holly_1.jpg" alt="Holly AI" class="chat-toggle-avatar">
+            <span class="chat-pulse"></span>
+        </button>
+
+        <!-- Chat Panel -->
+        <div id="chat-panel" class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar-wrapper">
+                        <img src="./assets/holly_1.jpg" alt="Holly AI" class="chat-header-avatar">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div>
+                        <h3>Holly - IA Assistente</h3>
+                        <p class="chat-status">Disponível | Pet Care</p>
+                    </div>
+                </div>
+                <button id="chat-close" class="chat-close-btn" aria-label="Fechar chat">&times;</button>
+            </div>
+            
+            <div class="chat-body" id="chat-body">
+                <!-- Welcome Message -->
+                <div class="chat-message bot">
+                    <div class="message-content">
+                        Olá! Sou a <strong>Holly</strong>, assistente de IA da ONG. 🐾 
+                        <br><br>
+                        Tenho base de conhecimento sobre <strong>saúde de Shih Tzus, comportamento, alimentação, vacinas e cuidados gerais</strong>. Como posso te auxiliar?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggestion Pills -->
+            <div class="chat-suggestions" id="chat-suggestions">
+                <button class="suggestion-pill" data-msg="Quais cuidados especiais um Shih Tzu precisa?">🐶 Cuidados Shih Tzu</button>
+                <button class="suggestion-pill" data-msg="Quais alimentos são proibidos para cães?">🚫 Alimentos proibidos</button>
+                <button class="suggestion-pill" data-msg="Como saber se meu cachorro está sentindo dor?">🤒 Sinais de dor</button>
+                <button class="suggestion-pill" data-msg="Qual o calendário de vacinas essencial?">💉 Vacinas anuais</button>
+            </div>
+
+            <div class="chat-footer">
+                <form id="chat-form" class="chat-input-form">
+                    <input type="text" id="chat-input" placeholder="Tire uma dúvida sobre seu pet..." autocomplete="off" required>
+                    <button type="submit" id="chat-send" class="chat-send-btn" aria-label="Enviar mensagem">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main JavaScript File -->
+    <script src="app.js"></script>
+</body>
+</html>
