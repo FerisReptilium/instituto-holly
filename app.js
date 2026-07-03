@@ -32,8 +32,8 @@
 //     created_at timestamp with time zone default timezone('utc'::text, now())
 //   );
 //
-const SUPABASE_URL = ""; // Ex: "https://xyz.supabase.co"
-const SUPABASE_ANON_KEY = ""; // Ex: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+const SUPABASE_URL = "https://vrmstyzpshbkcrrfpawc.supabase.co"; // Ex: "https://xyz.supabase.co"
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybXN0eXpwc2hia2NycmZwYXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDE5NjgsImV4cCI6MjA5ODY3Nzk2OH0.VhZXs188jk7RaowGaTkXm91H_1Cbvt8_rUoycr6a9eA"; // Ex: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 let supabaseClient = null;
 if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
