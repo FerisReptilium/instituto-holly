@@ -610,40 +610,57 @@ body.dark-mode .theme-toggle-btn .moon-icon {
 .care-card {
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
-    padding: 32px;
     border: 1px solid var(--border-color);
-    transition: border-color var(--transition-fast);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .care-card:hover {
-    border-color: var(--text-primary);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-.care-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-sm);
+.care-card-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.care-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.care-card:hover .care-img {
+    transform: scale(1.06);
+}
+
+.care-card-content {
+    padding: 24px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
+    flex-direction: column;
+    flex-grow: 1;
 }
-
-.care-icon.color-1 { background-color: #FDF1EE; color: var(--accent); }
-.care-icon.color-2 { background-color: #EBF3EF; color: var(--primary); }
-.care-icon.color-3 { background-color: #FBF6EC; color: #D69018; }
-.care-icon.color-4 { background-color: #ECEFF4; color: #4C566A; }
 
 .care-card h3 {
-    font-size: 1.2rem;
-    font-weight: 500;
-    margin-bottom: 12px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
 }
 
 .care-card p {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
     color: var(--text-secondary);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    flex-grow: 1;
 }
 
 .card-link {
@@ -731,15 +748,22 @@ body.dark-mode .theme-toggle-btn .moon-icon {
     flex-direction: column;
 }
 
-.news-img-placeholder {
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.news-card-image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    position: relative;
 }
 
-.news-emoji {
-    font-size: 2.5rem;
+.news-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.news-card:hover .news-img {
+    transform: scale(1.06);
 }
 
 .news-content {
@@ -1866,23 +1890,9 @@ body.dark-mode .main-footer {
     transform: translateX(6px);
 }
 
-/* Micro-interaction: Card Icon spring curve */
-.care-icon {
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+/* Micro-interaction: Card Icon spring curve (cleared old care-icon) */
 
-.care-card:hover .care-icon {
-    transform: scale(1.1) rotate(-3deg);
-}
-
-.news-emoji {
-    display: inline-block;
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.news-card:hover .news-emoji {
-    transform: scale(1.18) rotate(5deg);
-}
+/* Micro-interaction: Card Icon spring curve (cleared old news-emoji) */
 
 /* Scroll Reveal effect styles */
 .reveal-item {
@@ -2351,4 +2361,148 @@ body.dark-mode .main-footer {
     line-height: 1.4;
     color: var(--text-secondary);
     margin: 0;
+}
+
+/* Lightbox Modal styling */
+.lightbox-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(17, 19, 21, 0.95);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-modal.active {
+    opacity: 1;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+#lightbox-img {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.lightbox-modal.active #lightbox-img {
+    transform: scale(1);
+}
+
+.lightbox-caption {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    text-align: center;
+    margin: 0;
+    font-weight: 500;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 2.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+    z-index: 3010;
+}
+
+.lightbox-close:hover {
+    opacity: 1;
+}
+
+.lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 3rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast), background-color var(--transition-fast);
+    z-index: 3010;
+    user-select: none;
+}
+
+.lightbox-arrow:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.lightbox-prev {
+    left: 30px;
+}
+
+.lightbox-next {
+    right: 30px;
+}
+
+@media (max-width: 768px) {
+    .lightbox-arrow {
+        width: 44px;
+        height: 44px;
+        font-size: 2rem;
+    }
+    .lightbox-prev {
+        left: 10px;
+    }
+    .lightbox-next {
+        right: 10px;
+    }
+}
+
+/* Floating Heart Animation */
+.floating-heart-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 5000;
+    opacity: 0.9;
+    animation: floatHeart 1s ease-out forwards;
+    transform-origin: center bottom;
+}
+
+@keyframes floatHeart {
+    0% {
+        transform: translateY(0) scale(0.6) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-50px) scale(1.1) rotate(15deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.8) rotate(-15deg);
+        opacity: 0;
+    }
 }

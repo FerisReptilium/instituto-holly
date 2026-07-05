@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const articlesData = {
         "1": {
-            emoji: "🧠",
+            image: "./assets/article_love.png",
             category: "Neurobiologia",
             date: "02 de Julho, 2026",
             title: "A Química do Amor: O Efeito da Ocitocina nos Olhos Caninos",
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `
         },
         "2": {
-            emoji: "🍎",
+            image: "./assets/article_toxic.png",
             category: "Nutrologia Canina",
             date: "30 de Junho, 2026",
             title: "Uvas, Chocolate e Cebola: Por que são Altamente Tóxicos para os Cães?",
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `
         },
         "3": {
-            emoji: "🩺",
+            image: "./assets/article_vaccine.png",
             category: "Imunologia Veterinária",
             date: "28 de Junho, 2026",
             title: "Entendendo as Vacinas Múltiplas (V8 e V10): Como Elas Agem no Organismo",
@@ -201,17 +201,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = articlesData[id];
             if (data) {
                 articleModalBody.innerHTML = `
-                    <div class="modal-header">
-                        <div class="news-img-placeholder" style="width: 50px; height: 50px; border-radius: var(--radius-md); font-size: 1.8rem; background-color: var(--primary-light); display: flex; align-items: center; justify-content: center;">
-                            ${data.emoji}
-                        </div>
+                    <div class="modal-banner-image" style="width: 100%; height: 220px; border-radius: var(--radius-md); overflow: hidden; margin-bottom: 20px;">
+                        <img src="${data.image}" alt="${data.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="modal-header" style="margin-bottom: 20px;">
                         <div>
                             <span class="news-category" style="font-size: 0.75rem; font-weight:700; color: var(--accent);">${data.category}</span>
                             <h2 style="font-size: 1.5rem; margin-top: 4px;">${data.title}</h2>
                             <p class="subtitle" style="font-size: 0.8rem; color: var(--text-light);">${data.date}</p>
                         </div>
                     </div>
-                    <div class="modal-body" style="line-height: 1.7; font-size: 1rem;">
+                    <div class="modal-body" style="line-height: 1.7; font-size: 1rem; margin-bottom: 20px;">
                         ${data.content}
                     </div>
                     <div class="modal-footer">
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function bindFeedActions() {
         // Curtir Post
         document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', async (e) => {
                 if (!currentUser) {
                     alert("Você precisa fazer login para curtir postagens!");
                     openLoginModal();
@@ -672,10 +672,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const postId = card.dataset.id;
                 const userId = currentUser.id;
 
+                // Micro-interação: Coração flutuante instantâneo
+                if (!btn.classList.contains('liked')) {
+                    createFloatingHeart(e.clientX, e.clientY);
+                }
+
                 if (supabaseClient) {
-                    // Operações Supabase
                     try {
-                        // Buscar curtidas atuais do post
                         const { data: post, error } = await supabaseClient.from('posts').select('*').eq('id', postId).single();
                         if (post && !error) {
                             let likesList = post.liked_users || [];
@@ -695,7 +698,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error(err);
                     }
                 } else {
-                    // LocalStorage Mode
                     let localPosts = JSON.parse(localStorage.getItem('forum_posts')) || [];
                     const post = localPosts.find(p => p.id === postId);
                     if (post) {
@@ -712,11 +714,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // Recarregar posts
                 const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
                 fetchAndRenderPosts(activeFilter);
             });
         });
+
+        // Função auxiliar de animação de corações
+        function createFloatingHeart(x, y) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart-particle';
+            heart.style.left = `${x}px`;
+            heart.style.top = `${y}px`;
+            
+            const colors = ['#e51c23', '#FF4081', '#A55C4D', '#ff7675'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            heart.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="${randomColor}" stroke="none">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            `;
+            
+            document.body.appendChild(heart);
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        }
 
         // Toggle Comentários
         document.querySelectorAll('.comment-toggle-btn').forEach(btn => {
@@ -1318,6 +1341,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dogAgeInput.addEventListener('input', calculateAge);
         dogAgeInput.addEventListener('change', calculateAge);
+    }
+
+    // ==========================================
+    // 14. LIGHTBOX IMAGE GALLERY (HOLLY)
+    // ==========================================
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+
+    const galleryItems = Array.from(document.querySelectorAll('.timeline-thumb, .timeline-active-img'));
+    let currentGalleryIndex = 0;
+
+    if (lightboxModal && lightboxImg && lightboxCaption) {
+        const openLightbox = (index) => {
+            currentGalleryIndex = index;
+            const item = galleryItems[index];
+            
+            lightboxImg.src = item.src;
+            lightboxCaption.textContent = item.alt || "Homenagem à Holly";
+            
+            lightboxModal.style.display = 'flex';
+            setTimeout(() => {
+                lightboxModal.classList.add('active');
+            }, 10);
+        };
+
+        const closeLightbox = () => {
+            lightboxModal.classList.remove('active');
+            setTimeout(() => {
+                lightboxModal.style.display = 'none';
+            }, 300);
+        };
+
+        galleryItems.forEach((item, index) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                openLightbox(index);
+            });
+        });
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target === lightboxModal) closeLightbox();
+        });
+
+        const showNext = () => {
+            let nextIndex = (currentGalleryIndex + 1) % galleryItems.length;
+            while (!galleryItems[nextIndex].src && nextIndex !== currentGalleryIndex) {
+                nextIndex = (nextIndex + 1) % galleryItems.length;
+            }
+            openLightbox(nextIndex);
+        };
+
+        const showPrev = () => {
+            let prevIndex = (currentGalleryIndex - 1 + galleryItems.length) % galleryItems.length;
+            while (!galleryItems[prevIndex].src && prevIndex !== currentGalleryIndex) {
+                prevIndex = (prevIndex - 1 + galleryItems.length) % galleryItems.length;
+            }
+            openLightbox(prevIndex);
+        };
+
+        lightboxNext.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showNext();
+        });
+
+        lightboxPrev.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showPrev();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightboxModal.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') showNext();
+            if (e.key === 'ArrowLeft') showPrev();
+        });
     }
 
     // Inicialização da verificação de login ao carregar a página
