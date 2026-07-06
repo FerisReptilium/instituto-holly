@@ -99,16 +99,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Estado inicial de scroll
+    const winScrollInit = document.documentElement.scrollTop || document.body.scrollTop;
+    if (winScrollInit > 20) {
+        header.classList.add('header-scrolled');
+    }
+
     window.addEventListener('scroll', () => {
         const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + '%';
 
-        if (winScroll > 40) {
-            header.style.borderBottom = '1px solid var(--border-color)';
+        if (winScroll > 20) {
+            header.classList.add('header-scrolled');
         } else {
-            header.style.borderBottom = '1px solid var(--glass-border)';
+            header.classList.remove('header-scrolled');
         }
 
         // Active state baseada na seção
@@ -143,6 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
         storyModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     });
+
+    const btnOpenStoryTribute = document.getElementById('btn-open-story-tribute');
+    if (btnOpenStoryTribute) {
+        btnOpenStoryTribute.addEventListener('click', () => {
+            storyModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+    }
 
     const closeStory = () => {
         storyModal.style.display = 'none';
@@ -1507,8 +1521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderTributeCards() {
-        if (!tributeCardsList) return;
-        
+        // Obter as dedicatórias do localStorage (ou defaults)
         let tributes = JSON.parse(localStorage.getItem('memorial_tributes'));
         if (!tributes || tributes.length === 0) {
             tributes = [
@@ -1521,15 +1534,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const sortedTributes = [...tributes].reverse();
         
-        tributeCardsList.innerHTML = sortedTributes.map(t => `
-            <div class="tribute-card">
-                <div class="tribute-card-header">
-                    <span class="tribute-pet">✨ ${t.pet}</span>
-                    <span class="tribute-tutor">Por ${t.tutor} • ${t.date}</span>
+        // Renderizar no modal se o elemento estiver presente
+        if (tributeCardsList) {
+            tributeCardsList.innerHTML = sortedTributes.map(t => `
+                <div class="tribute-card">
+                    <div class="tribute-card-header">
+                        <span class="tribute-pet">✨ ${t.pet}</span>
+                        <span class="tribute-tutor">Por ${t.tutor} • ${t.date}</span>
+                    </div>
+                    <div class="tribute-desc">"${t.message}"</div>
                 </div>
-                <div class="tribute-desc">"${t.message}"</div>
-            </div>
-        `).join('');
+            `).join('');
+        }
+
+        // Renderizar no destaque da página inicial (Mural Rápido)
+        const homeTributesList = document.getElementById('home-tributes-list');
+        const homeCandleCount = document.getElementById('home-candle-count');
+        if (homeCandleCount) {
+            const candleCount = parseInt(localStorage.getItem('holly_candles') || '1240');
+            homeCandleCount.textContent = candleCount.toLocaleString('pt-BR');
+        }
+        if (homeTributesList) {
+            const latestThree = sortedTributes.slice(0, 3);
+            homeTributesList.innerHTML = latestThree.map(t => `
+                <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.8rem; box-shadow: var(--shadow-sm); animation: fade-in-slide-up 0.4s ease forwards;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <strong style="color: var(--primary);">✨ ${t.pet}</strong>
+                        <span style="font-size: 0.7rem; color: var(--text-light);">Por ${t.tutor}</span>
+                    </div>
+                    <div style="font-style: italic; color: var(--text-secondary); font-size: 0.75rem;">"${t.message}"</div>
+                </div>
+            `).join('');
+        }
     }
 
     if (btnLightCandle && candleFlame && candleCountVal) {
@@ -1771,6 +1807,93 @@ document.addEventListener('DOMContentLoaded', () => {
                 toast.remove();
             }, 300);
         }, 4000);
+    }
+
+    // ==========================================
+    // 14. TRILHA SONORA CELESTIAL DE ACOLHIMENTO (YOUTUBE API PLAYER)
+    // ==========================================
+    let ytPlayer = null;
+    let isPlayingSoundtrack = false;
+    let ytApiLoaded = false;
+
+    // Carregar a API do YouTube dinamicamente sob demanda
+    function loadYoutubeAPI() {
+        if (ytApiLoaded) return;
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        ytApiLoaded = true;
+    }
+
+    // Callback global exigido pelo iframe player do YouTube
+    window.onYouTubeIframeAPIReady = function() {
+        ytPlayer = new YT.Player('youtube-audio-container', {
+            height: '0',
+            width: '0',
+            videoId: '2Ad8xhdSs4Q',
+            playerVars: {
+                autoplay: 1,
+                controls: 0,
+                loop: 1,
+                playlist: '2Ad8xhdSs4Q', // Necessário para looping contínuo de um vídeo único
+                playsinline: 1
+            },
+            events: {
+                onReady: (event) => {
+                    event.target.setVolume(20); // Volume suave de fundo (20%)
+                    event.target.playVideo();
+                    isPlayingSoundtrack = true;
+                    updateSoundtrackButtonUI(true);
+                },
+                onStateChange: (event) => {
+                    if (event.data === YT.PlayerState.ENDED) {
+                        event.target.playVideo();
+                    }
+                }
+            }
+        });
+    };
+
+    function updateSoundtrackButtonUI(active) {
+        const soundtrackToggle = document.getElementById('soundtrack-toggle');
+        if (!soundtrackToggle) return;
+        
+        if (active) {
+            soundtrackToggle.style.color = '#ffffff';
+            soundtrackToggle.style.borderColor = 'var(--primary)';
+            soundtrackToggle.style.backgroundColor = 'var(--primary)';
+            soundtrackToggle.querySelector('.music-icon').style.transform = 'rotate(360deg)';
+            soundtrackToggle.title = "Pausar música";
+        } else {
+            soundtrackToggle.style.color = 'var(--text-secondary)';
+            soundtrackToggle.style.borderColor = 'var(--border-color)';
+            soundtrackToggle.style.backgroundColor = 'var(--bg-secondary)';
+            soundtrackToggle.querySelector('.music-icon').style.transform = 'none';
+            soundtrackToggle.title = "Ativar música de acolhimento";
+        }
+    }
+
+    const soundtrackToggle = document.getElementById('soundtrack-toggle');
+    if (soundtrackToggle) {
+        soundtrackToggle.addEventListener('click', () => {
+            if (!ytPlayer) {
+                showToast("Carregando música de acolhimento...", "info");
+                loadYoutubeAPI();
+            } else {
+                if (isPlayingSoundtrack) {
+                    ytPlayer.pauseVideo();
+                    isPlayingSoundtrack = false;
+                    updateSoundtrackButtonUI(false);
+                    showToast("Trilha sonora pausada.", "info");
+                } else {
+                    ytPlayer.playVideo();
+                    isPlayingSoundtrack = true;
+                    updateSoundtrackButtonUI(true);
+                    showToast("Tocando trilha sonora de luto e saudade...", "info");
+                }
+            }
+        });
     }
 
     // Inicialização da verificação de login ao carregar a página
