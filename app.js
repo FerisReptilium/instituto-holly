@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             currentUser = null;
             updateAuthUI();
-            alert("Sessão finalizada.");
+            showToast("Sessão finalizada.", "info");
             const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
             fetchAndRenderPosts(activeFilter);
         } else {
@@ -357,41 +357,92 @@ document.addEventListener('DOMContentLoaded', () => {
         signupContainer.style.display = 'none';
     });
 
+    // Redimensionar e comprimir imagem para avatar leve (96x96 pixels)
+    function resizeAndCompressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = 96;
+                    canvas.height = 96;
+                    
+                    const minSize = Math.min(img.width, img.height);
+                    const sx = (img.width - minSize) / 2;
+                    const sy = (img.height - minSize) / 2;
+                    
+                    ctx.drawImage(img, sx, sy, minSize, minSize, 0, 0, 96, 96);
+                    
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+                    resolve(compressedBase64);
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Helper para obter Avatar do usuário (customizado ou Gravatar)
+    async function resolveUserAvatar(email) {
+        try {
+            const cleanedEmail = email.trim().toLowerCase();
+            const msgUint8 = new TextEncoder().encode(cleanedEmail);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return `https://www.gravatar.com/avatar/${hashHex}?d=identicon`;
+        } catch (e) {
+            return '';
+        }
+    }
+
     // Submissão do Cadastro (Signup)
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('signup-name').value.trim();
         const email = document.getElementById('signup-email').value.trim();
         const password = document.getElementById('signup-password').value;
+        const avatarFile = document.getElementById('signup-avatar').files[0];
+
+        let resolvedAvatar = '';
+        if (avatarFile) {
+            resolvedAvatar = await resizeAndCompressImage(avatarFile);
+        } else {
+            resolvedAvatar = await resolveUserAvatar(email);
+        }
 
         if (supabaseClient) {
             const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
-                options: { data: { display_name: name } }
+                options: { data: { display_name: name, avatar_url: resolvedAvatar } }
             });
             if (error) {
-                alert(`Erro no cadastro: ${error.message}`);
+                showToast(`Erro no cadastro: ${error.message}`, "error");
             } else {
-                alert("Cadastro realizado! Por favor, verifique seu e-mail para confirmação.");
+                showToast("Cadastro realizado! Por favor, verifique seu e-mail para confirmação.", "success");
                 closeAuth();
             }
         } else {
             // LocalStorage
             let localUsers = JSON.parse(localStorage.getItem('local_users')) || [];
             if (localUsers.some(u => u.email === email)) {
-                alert("E-mail já cadastrado!");
+                showToast("E-mail já cadastrado!", "error");
                 return;
             }
-            const newUser = { id: 'usr-' + Date.now(), name, email, password };
+            const newUser = { id: 'usr-' + Date.now(), name, email, password, avatarUrl: resolvedAvatar };
             localUsers.push(newUser);
             localStorage.setItem('local_users', JSON.stringify(localUsers));
 
-            currentUser = { id: newUser.id, name: newUser.name, email: newUser.email };
+            currentUser = { id: newUser.id, name: newUser.name, email: newUser.email, avatarUrl: resolvedAvatar };
             localStorage.setItem('logged_user', JSON.stringify(currentUser));
             updateAuthUI();
             closeAuth();
-            alert("Cadastro realizado localmente com sucesso!");
+            showToast("Cadastro realizado localmente com sucesso!", "success");
             
             const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
             fetchAndRenderPosts(activeFilter);
@@ -407,16 +458,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (supabaseClient) {
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) {
-                alert(`Erro no login: ${error.message}`);
+                showToast(`Erro no login: ${error.message}`, "error");
             } else {
                 currentUser = {
                     id: data.user.id,
                     name: data.user.user_metadata?.display_name || email.split('@')[0],
-                    email: data.user.email
+                    email: data.user.email,
+                    avatarUrl: data.user.user_metadata?.avatar_url || ''
                 };
                 updateAuthUI();
                 closeAuth();
-                alert(`Bem-vindo, ${currentUser.name}!`);
+                showToast(`Bem-vindo, ${currentUser.name}!`, "success");
                 
                 const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
                 fetchAndRenderPosts(activeFilter);
@@ -426,23 +478,99 @@ document.addEventListener('DOMContentLoaded', () => {
             let localUsers = JSON.parse(localStorage.getItem('local_users')) || [];
             const user = localUsers.find(u => u.email === email && u.password === password);
             if (user) {
-                currentUser = { id: user.id, name: user.name, email: user.email };
+                currentUser = { id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl || '' };
                 localStorage.setItem('logged_user', JSON.stringify(currentUser));
                 updateAuthUI();
                 closeAuth();
-                alert(`Bem-vindo de volta, ${currentUser.name}!`);
+                showToast(`Bem-vindo de volta, ${currentUser.name}!`, "success");
                 
                 const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
                 fetchAndRenderPosts(activeFilter);
             } else {
-                alert("Credenciais incorretas ou usuário não encontrado!");
+                showToast("Credenciais incorretas ou usuário não encontrado!", "error");
             }
         }
     });
 
-    // Fechar modal de auth clicando fora
+    // Modal de Edição de Perfil
+    const profileModal = document.getElementById('profile-modal');
+    const closeProfileModal = document.getElementById('close-profile-modal');
+    const profileEditForm = document.getElementById('profile-edit-form');
+    const editProfileName = document.getElementById('edit-profile-name');
+    const editProfileAvatar = document.getElementById('edit-profile-avatar');
+
+    // Mapear clique no botão "Editar Perfil"
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'btn-edit-profile') {
+            if (!currentUser) return;
+            editProfileName.value = currentUser.name;
+            profileModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    });
+
+    const closeProfile = () => {
+        profileModal.style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    if (closeProfileModal) {
+        closeProfileModal.addEventListener('click', closeProfile);
+    }
+
+    if (profileEditForm) {
+        profileEditForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const newName = editProfileName.value.trim();
+            const newFile = editProfileAvatar.files[0];
+            
+            let newAvatarUrl = currentUser.avatarUrl;
+            if (newFile) {
+                newAvatarUrl = await resizeAndCompressImage(newFile);
+            }
+
+            currentUser.name = newName;
+            currentUser.avatarUrl = newAvatarUrl;
+
+            // Salvar no Supabase
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.auth.updateUser({
+                        data: { display_name: newName, avatar_url: newAvatarUrl }
+                    });
+                } catch (err) {
+                    console.error("Erro ao atualizar perfil no Supabase:", err);
+                }
+            } else {
+                // LocalStorage local_users update
+                let localUsers = JSON.parse(localStorage.getItem('local_users')) || [];
+                const uIndex = localUsers.findIndex(u => u.email === currentUser.email);
+                if (uIndex !== -1) {
+                    localUsers[uIndex].name = newName;
+                    localUsers[uIndex].avatarUrl = newAvatarUrl;
+                    localStorage.setItem('local_users', JSON.stringify(localUsers));
+                }
+            }
+
+            // Atualizar logged_user
+            localStorage.setItem('logged_user', JSON.stringify(currentUser));
+            
+            updateAuthUI();
+            closeProfile();
+            showToast("Perfil atualizado com sucesso!", "success");
+
+            // Rerenderizar feed para exibir o novo nome/foto do tutor ativo nas postagens
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            fetchAndRenderPosts(activeFilter);
+        });
+    }
+
+    // Fechar modais clicando fora
     window.addEventListener('click', (e) => {
         if (e.target === authModal) closeAuth();
+        if (e.target === profileModal) closeProfile();
     });
 
     // ==========================================
@@ -578,6 +706,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Função auxiliar para gerar um gradiente único baseado no nome
+    function getAvatarGradient(name) {
+        const gradients = [
+            'linear-gradient(135deg, #FF5722, #FFC107)', // Laranja-Amarelo
+            'linear-gradient(135deg, #9C27B0, #E91E63)', // Roxo-Rosa
+            'linear-gradient(135deg, #00BCD4, #4CAF50)', // Ciano-Verde
+            'linear-gradient(135deg, #3F51B5, #00BCD4)', // Índigo-Ciano
+            'linear-gradient(135deg, #E91E63, #FFC107)', // Rosa-Amarelo
+            'linear-gradient(135deg, #607D8B, #9E9E9E)', // AzulCinza-Cinza
+            'linear-gradient(135deg, #FF9800, #FF5722)', // LaranjaEscuro
+            'linear-gradient(135deg, #009688, #4CAF50)'  // Teal-Verde
+        ];
+        
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % gradients.length;
+        return gradients[index];
+    }
+
     // Renderização dos cards dos posts
     function renderPostsList(posts, filter) {
         forumPostsContainer.innerHTML = '';
@@ -592,21 +741,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const sorted = [...filtered].reverse();
 
         sorted.forEach(post => {
-            const initial = post.author.charAt(0).toUpperCase();
+            const authorParts = post.author.split('|');
+            const postAuthorName = authorParts[0];
+            const postAuthorAvatar = authorParts[1] || '';
+            const postInitial = postAuthorName.charAt(0).toUpperCase();
+            
             const hasLiked = currentUser ? post.likedUsers?.includes(currentUser.id) : post.likedUsers?.includes('current');
 
             let commentsHTML = '';
             post.comments.forEach(c => {
+                const commentAuthorParts = c.author.split('|');
+                const commentAuthorName = commentAuthorParts[0];
+                const commentAuthorAvatar = commentAuthorParts[1] || '';
+                const commentInitial = commentAuthorName.charAt(0).toUpperCase();
+                
+                const commentAvatarHTML = commentAuthorAvatar
+                    ? `<img src="${commentAuthorAvatar}" class="author-avatar" alt="${commentAuthorName}" style="width:24px; height:24px; object-fit:cover; border-radius: 50%; flex-shrink:0;">`
+                    : `<div class="author-avatar" style="width: 24px; height: 24px; font-size: 0.75rem; background: ${getAvatarGradient(commentAuthorName)}; color: #ffffff; flex-shrink: 0;">${commentInitial}</div>`;
+                
                 commentsHTML += `
-                    <div class="comment-item">
-                        <div class="comment-meta">
-                            <span class="comment-author">${c.author}</span>
-                            <span class="comment-time">${c.time}</span>
+                    <div class="comment-item" style="display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;">
+                        ${commentAvatarHTML}
+                        <div style="flex: 1;">
+                            <div class="comment-meta" style="margin-bottom: 2px;">
+                                <span class="comment-author" style="font-weight:600; font-size:0.8rem; color: var(--text-primary);">${commentAuthorName}</span>
+                                <span class="comment-time" style="font-size:0.7rem; color: var(--text-light); margin-left: 6px;">${c.time}</span>
+                            </div>
+                            <div class="comment-text" style="font-size:0.8rem; color: var(--text-secondary); line-height: 1.4;">${c.text}</div>
                         </div>
-                        <div class="comment-text">${c.text}</div>
                     </div>
                 `;
             });
+
+            const postAvatarHTML = postAuthorAvatar
+                ? `<img src="${postAuthorAvatar}" class="author-avatar" alt="${postAuthorName}" style="width:32px; height:32px; object-fit:cover; border-radius: 50%;">`
+                : `<div class="author-avatar" style="background: ${getAvatarGradient(postAuthorName)}; color: #ffffff;">${postInitial}</div>`;
 
             const card = document.createElement('div');
             card.className = 'forum-post-card';
@@ -614,9 +783,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="post-header">
                     <div class="post-meta-left">
-                        <div class="author-avatar">${initial}</div>
+                        ${postAvatarHTML}
                         <div class="author-info">
-                            <span class="author-name">${post.author}</span>
+                            <span class="author-name">${postAuthorName}</span>
                             <span class="post-date">${post.date}</span>
                         </div>
                     </div>
@@ -663,7 +832,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.like-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 if (!currentUser) {
-                    alert("Você precisa fazer login para curtir postagens!");
+                    showToast("Você precisa fazer login para curtir postagens!", "error");
                     openLoginModal();
                     return;
                 }
@@ -764,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         try {
                             await supabaseClient.from('comments').insert({
                                 post_id: postId,
-                                author: currentUser.name,
+                                author: currentUser.name + '|' + (currentUser.avatarUrl || ''),
                                 text: text
                             });
                         } catch (err) {
@@ -776,7 +945,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const post = localPosts.find(p => p.id === postId);
                         if (post) {
                             post.comments.push({
-                                author: currentUser.name,
+                                author: currentUser.name + '|' + (currentUser.avatarUrl || ''),
                                 text: text,
                                 time: 'Agora mesmo'
                             });
@@ -802,7 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         if (!currentUser) {
-            alert("Faça login para criar postagens!");
+            showToast("Faça login para criar postagens!", "error");
             return;
         }
 
@@ -812,7 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (title && content) {
             const postId = 'post-' + Date.now();
-            const authorName = currentUser.name;
+            const authorName = currentUser.name + '|' + (currentUser.avatarUrl || '');
 
             if (supabaseClient) {
                 try {
@@ -826,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         liked_users: []
                     });
                 } catch (err) {
-                    alert("Erro ao criar postagem no servidor: " + err.message);
+                    showToast("Erro ao criar postagem no servidor: " + err.message, "error");
                 }
             } else {
                 // LocalStorage Fallback
@@ -1124,6 +1293,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 Ela é a nossa estrela-guia e o rostinho estampado em nosso portal! ✨`
             },
             {
+                keys: ['luto', 'saudade', 'perdi', 'faleceu', 'morreu', 'virou estrela', 'estrelinha', 'despedida', 'tristeza', 'dor da perda', 'coração partido'],
+                response: `❤️ <strong>Acolhendo o seu Coração: Suporte ao Luto de Pets</strong><br><br>
+                Sinto muito pela sua perda. A dor de ver um companheiro de quatro patas partir é real, legítima e profundamente dolorosa. Eles são membros da nossa família e nos oferecem um amor puro e sem julgamentos.<br><br>
+                <strong>Para ajudar a confortar sua dor:</strong><br>
+                - <strong>Valide seus sentimentos:</strong> Chore, sinta e não deixe que ninguém diminua a sua dor dizendo que "era só um animal". O vínculo que vocês tinham era sagrado.<br>
+                - <strong>Respire com calma:</strong> Se o peito apertar, inspire pelo nariz contando até 4, segure por 4 e expire lentamente pela boca contando até 4. Repita três vezes.<br>
+                - <strong>Ressignifique com amor:</strong> O amor deles não acaba com a partida física; ele se transforma nas memórias felizes. Que tal acender uma vela virtual com uma dedicatória em nosso <strong>Mural de Estrelinhas</strong> (no menu da História de Holly) para eternizar seu legado?<br><br>
+                <em>Estamos aqui para te acolher. Você não está sozinho nessa caminhada. 🌟🐾</em>`
+            },
+            {
                 keys: ['ola', 'olá', 'oi', 'bom dia', 'boa tarde', 'boa noite', 'ajuda'],
                 response: `Olá! Sou a assistente virtual Holly 🐶. Como posso ajudar com a saúde ou cuidados do seu cão hoje?<br><br>
                 Pergunte sobre <strong>"cuidados Shih Tzu"</strong>, <strong>"alimentos proibidos"</strong> ou <strong>"espirro reverso"</strong>.`
@@ -1262,43 +1441,152 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 12. INTERACTIVE MEMORIAL CANDLE (HOLLY)
+    // 12. INTERACTIVE MEMORIAL CANDLE & TRIBUTE WALL
     // ==========================================
     const btnLightCandle = document.getElementById('btn-light-candle');
     const candleFlame = document.getElementById('candle-flame');
     const candleCountVal = document.getElementById('candle-count-val');
+    const tributeFormContainer = document.getElementById('tribute-form-container');
+    const tributeForm = document.getElementById('tribute-form');
+    const tributeCardsList = document.getElementById('tribute-cards-list');
+    const candleAmbientGlow = document.getElementById('candle-ambient-glow');
+
+    let particleInterval = null;
+
+    function startAmbientGlow() {
+        if (!candleAmbientGlow) return;
+        if (particleInterval) clearInterval(particleInterval);
+        
+        candleAmbientGlow.innerHTML = '';
+        
+        particleInterval = setInterval(() => {
+            const particle = document.createElement('span');
+            particle.className = 'glow-particle';
+            
+            const size = Math.random() * 8 + 4;
+            const left = Math.random() * 100;
+            const delay = Math.random() * 2;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${left}%`;
+            particle.style.bottom = `10px`;
+            particle.style.animationDelay = `${delay}s`;
+            
+            candleAmbientGlow.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 4000);
+        }, 400);
+    }
+
+    function renderTributeCards() {
+        if (!tributeCardsList) return;
+        
+        let tributes = JSON.parse(localStorage.getItem('memorial_tributes'));
+        if (!tributes || tributes.length === 0) {
+            tributes = [
+                { pet: "Holly", tutor: "Família Holly", message: "Sua doçura e seus lacinhos coloridos iluminaram nossa vida. Para sempre nossa rainha.", date: "03/07/2026" },
+                { pet: "Bob", tutor: "Ana Souza", message: "Sentimos sua falta correndo pela casa e pulando no edredom todos os dias.", date: "02/07/2026" },
+                { pet: "Mel", tutor: "Eduardo Reis", message: "Obrigado por 14 anos de puro amor incondicional e companhia nas noites frias.", date: "29/06/2026" }
+            ];
+            localStorage.setItem('memorial_tributes', JSON.stringify(tributes));
+        }
+
+        const sortedTributes = [...tributes].reverse();
+        
+        tributeCardsList.innerHTML = sortedTributes.map(t => `
+            <div class="tribute-card">
+                <div class="tribute-card-header">
+                    <span class="tribute-pet">✨ ${t.pet}</span>
+                    <span class="tribute-tutor">Por ${t.tutor} • ${t.date}</span>
+                </div>
+                <div class="tribute-desc">"${t.message}"</div>
+            </div>
+        `).join('');
+    }
 
     if (btnLightCandle && candleFlame && candleCountVal) {
         let candleCount = parseInt(localStorage.getItem('holly_candles') || '1240');
         candleCountVal.textContent = candleCount.toLocaleString('pt-BR');
+        
+        renderTributeCards();
 
         if (sessionStorage.getItem('candle_lit') === 'true') {
             candleFlame.classList.add('active');
+            if (candleFlame.parentElement) {
+                candleFlame.parentElement.classList.add('active');
+            }
             btnLightCandle.disabled = true;
-            btnLightCandle.textContent = 'Sua Vela está Acesa';
+            btnLightCandle.textContent = 'Sua Homenagem está Acesa';
             btnLightCandle.style.backgroundColor = '#10AC84';
             btnLightCandle.style.borderColor = '#10AC84';
             btnLightCandle.style.color = '#ffffff';
+            if (tributeFormContainer) tributeFormContainer.style.display = 'none';
+            startAmbientGlow();
         }
 
         btnLightCandle.addEventListener('click', () => {
             if (sessionStorage.getItem('candle_lit') === 'true') return;
-
-            candleFlame.classList.add('active');
             
-            candleCount += 1;
-            localStorage.setItem('holly_candles', candleCount.toString());
-            candleCountVal.textContent = candleCount.toLocaleString('pt-BR');
-
-            sessionStorage.setItem('candle_lit', 'true');
-
-            btnLightCandle.disabled = true;
-            btnLightCandle.textContent = 'Vela Acesa! ✨';
-            btnLightCandle.style.backgroundColor = '#10AC84';
-            btnLightCandle.style.borderColor = '#10AC84';
-            btnLightCandle.style.color = '#ffffff';
-            btnLightCandle.style.transform = 'scale(0.98)';
+            if (tributeFormContainer) {
+                tributeFormContainer.style.display = tributeFormContainer.style.display === 'block' ? 'none' : 'block';
+                if (tributeFormContainer.style.display === 'block') {
+                    const petInput = document.getElementById('tribute-pet-name');
+                    if (petInput) petInput.focus();
+                    tributeFormContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
         });
+
+        if (tributeForm) {
+            tributeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (sessionStorage.getItem('candle_lit') === 'true') return;
+
+                const petName = document.getElementById('tribute-pet-name').value.trim();
+                const tutorName = document.getElementById('tribute-tutor-name').value.trim() || "Tutor Anônimo";
+                const messageText = document.getElementById('tribute-message').value.trim();
+
+                if (petName && messageText) {
+                    let tributes = JSON.parse(localStorage.getItem('memorial_tributes')) || [];
+                    const newTribute = {
+                        pet: petName,
+                        tutor: tutorName,
+                        message: messageText,
+                        date: new Date().toLocaleDateString('pt-BR')
+                    };
+                    tributes.push(newTribute);
+                    localStorage.setItem('memorial_tributes', JSON.stringify(tributes));
+
+                    candleFlame.classList.add('active');
+                    if (candleFlame.parentElement) {
+                        candleFlame.parentElement.classList.add('active');
+                    }
+                    
+                    candleCount += 1;
+                    localStorage.setItem('holly_candles', candleCount.toString());
+                    candleCountVal.textContent = candleCount.toLocaleString('pt-BR');
+
+                    sessionStorage.setItem('candle_lit', 'true');
+
+                    btnLightCandle.disabled = true;
+                    btnLightCandle.textContent = 'Homenagem Enviada! ✨';
+                    btnLightCandle.style.backgroundColor = '#10AC84';
+                    btnLightCandle.style.borderColor = '#10AC84';
+                    btnLightCandle.style.color = '#ffffff';
+                    
+                    tributeFormContainer.style.display = 'none';
+                    tributeForm.reset();
+
+                    renderTributeCards();
+                    startAmbientGlow();
+                    
+                    showToast("Homenagem enviada! Sua estrelinha agora brilha em nosso memorial.", "success");
+                }
+            });
+        }
     }
 
     // ==========================================
@@ -1421,6 +1709,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'ArrowRight') showNext();
             if (e.key === 'ArrowLeft') showPrev();
         });
+    }
+
+    // Sistema Global de Notificações Toast
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = `toast-item ${type}`;
+        
+        let icon = 'ℹ️';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+        if (type === 'info') icon = '🔔';
+        
+        toast.innerHTML = `
+            <span class="toast-icon">${icon}</span>
+            <span class="toast-message">${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 4000);
     }
 
     // Inicialização da verificação de login ao carregar a página

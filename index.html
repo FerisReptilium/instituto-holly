@@ -82,9 +82,9 @@
             <div class="container hero-container">
                 <div class="hero-content">
                     <span class="badge" id="hero-badge">Em Memória de Holly ✨</span>
-                    <h1 class="hero-title">Transformando a saudade em <span>ciência e cuidado</span> animal</h1>
+                    <h1 class="hero-title">Transformando a saudade em <span>amor que acolhe</span> e protege</h1>
                     <p class="hero-description">
-                        A nossa adorável Shih Tzu Holly partiu, mas o seu legado de afeto se tornou um portal de amparo técnico. Reunimos dicas de veterinários especialistas, artigos científicos e uma comunidade comprometida com o bem-estar e a saúde dos cães.
+                        Perder um companheiro de quatro patas é ver um pedaço da nossa história silenciar. O Instituto Holly nasceu para transformar a dor da perda em acolhimento e ação. Aqui, a saudade dos nossos eternos amigos vira amor em movimento: um espaço de apoio mútuo, conhecimento científico e união para cuidar de quem ainda ilumina os nossos dias.
                     </p>
                     <div class="hero-buttons">
                         <a href="#cuidados" class="btn btn-primary" id="btn-explore">Guia de Cuidados</a>
@@ -204,14 +204,46 @@
                     <div class="memorial-tribute-action">
                         <h3>Acender uma Vela em Memória</h3>
                         <p>Una-se à nossa comunidade prestando uma homenagem silenciosa à Holly e a todas as mascotes que viraram estrelas. Cada vela acesa representa uma promessa de carinho e proteção.</p>
-                        <div class="candle-widget">
-                            <div class="candle-container" id="candle-trigger">
+                        <div class="candle-widget" style="position: relative;">
+                            <!-- Recipiente para o Ambient Glow de fundo -->
+                            <div id="candle-ambient-glow" style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 180px; height: 180px; pointer-events: none; z-index: 1;"></div>
+                            
+                            <div class="candle-container" id="candle-trigger" style="z-index: 2; position: relative;">
                                 <div class="candle-wax"></div>
                                 <div class="candle-wick"></div>
                                 <div class="candle-flame" id="candle-flame"></div>
                             </div>
-                            <button class="btn btn-secondary" id="btn-light-candle">Acender Vela Virtual</button>
-                            <span class="candle-counter">Velas acesas: <strong id="candle-count-val">1.240</strong></span>
+                            <button class="btn btn-secondary" id="btn-light-candle" style="z-index: 2; position: relative;">Acender Vela Virtual</button>
+                            <span class="candle-counter" style="z-index: 2; position: relative;">Velas acesas: <strong id="candle-count-val">1.240</strong></span>
+                            
+                            <!-- Formulário de Homenagem (inicialmente oculto) -->
+                            <div class="tribute-form-container" id="tribute-form-container" style="display:none; margin-top: 15px; width: 100%; text-align: left; z-index: 2; position: relative;">
+                                <form id="tribute-form" style="background: rgba(var(--bg-rgb), 0.7); padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm);">
+                                    <div class="form-group" style="margin-bottom: 8px;">
+                                        <label for="tribute-pet-name" style="font-size:0.75rem; font-weight:600; color:var(--text-primary); display:block; margin-bottom:3px;">Nome da Estrelinha (Pet)</label>
+                                        <input type="text" id="tribute-pet-name" required placeholder="Ex: Bob, Pipoca, Mel" style="font-size:0.8rem; padding: 6px 10px; width:100%; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 8px;">
+                                        <label for="tribute-tutor-name" style="font-size:0.75rem; font-weight:600; color:var(--text-primary); display:block; margin-bottom:3px;">Nome do Tutor (Opcional)</label>
+                                        <input type="text" id="tribute-tutor-name" placeholder="Ex: Ana Souza" style="font-size:0.8rem; padding: 6px 10px; width:100%; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 12px;">
+                                        <label for="tribute-message" style="font-size:0.75rem; font-weight:600; color:var(--text-primary); display:block; margin-bottom:3px;">Uma breve mensagem de amor</label>
+                                        <textarea id="tribute-message" required placeholder="Ex: Sempre guardaremos sua alegria em nossos corações..." rows="2" style="font-size:0.8rem; padding: 6px 10px; width:100%; border-radius:var(--radius-sm); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); resize:none; font-family:inherit;"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-block" style="font-size:0.75rem; padding: 8px 12px;">Enviar Homenagem e Acender Vela</button>
+                                </form>
+                            </div>
+
+                            <!-- Mural de Dedicatórias -->
+                            <div class="tribute-wall-container" style="margin-top: 25px; text-align: left; width: 100%; z-index: 2; position: relative;">
+                                <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.02em;">
+                                    ✨ Mural de Estrelinhas
+                                </h4>
+                                <div id="tribute-cards-list" class="tribute-cards-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px;">
+                                    <!-- Cartões preenchidos via JS -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -267,9 +299,38 @@
                             <label for="signup-password">Criar uma Senha</label>
                             <input type="password" id="signup-password" required placeholder="Mínimo de 6 caracteres">
                         </div>
+                        <div class="form-group">
+                            <label for="signup-avatar">Foto de Perfil (Opcional)</label>
+                            <input type="file" id="signup-avatar" accept="image/*">
+                            <span class="input-helper" style="font-size:0.65rem; color:var(--text-light); display:block; margin-top:2px;">Selecione um arquivo de imagem. Se deixado vazio, usaremos seu Gravatar ou um gradiente.</span>
+                        </div>
                         <button type="submit" class="btn btn-primary btn-block" aria-label="Registrar conta">Registrar Conta</button>
                     </form>
                     <p class="auth-switch">Já é cadastrado? <button id="switch-to-login" class="btn-link" aria-label="Fazer login">Faça Login</button></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div id="profile-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+            <div class="modal-content auth-modal-content">
+                <button class="close-modal" id="close-profile-modal" aria-label="Fechar modal de perfil">&times;</button>
+                <div class="auth-sub-container">
+                    <h2 class="auth-title" id="profile-modal-title">Editar Perfil</h2>
+                    <p class="auth-subtitle">Atualize seu nome de exibição e foto de perfil.</p>
+                    
+                    <form id="profile-edit-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="edit-profile-name">Nome Completo / Apelido</label>
+                            <input type="text" id="edit-profile-name" required placeholder="Ex: Ana Souza">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-profile-avatar">Alterar Foto de Perfil</label>
+                            <input type="file" id="edit-profile-avatar" accept="image/*">
+                            <span class="input-helper" style="font-size:0.65rem; color:var(--text-light); display:block; margin-top:2px;">Selecione um novo arquivo para alterar sua foto.</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" aria-label="Salvar alterações">Salvar Alterações</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -278,9 +339,9 @@
         <section id="cuidados" class="section cuidados-section bg-alt">
             <div class="container">
                 <div class="section-header text-center">
-                    <span class="badge">Práticas Baseadas em Evidência</span>
-                    <h2 class="section-title">Manual de Cuidados Caninos</h2>
-                    <p class="section-subtitle">Instruções essenciais de veterinários para zelar pela integridade física e emocional do seu cão.</p>
+                    <span class="badge">Conexão & Ciência</span>
+                    <h2 class="section-title">Guia de Cuidado e Vínculo</h2>
+                    <p class="section-subtitle">O amor se traduz em pequenos gestos diários. Descubra o caminho cientificamente comprovado e afetuoso para prolongar a alegria e os anos de vida do seu grande companheiro.</p>
                 </div>
 
                 <!-- Care Categories Cards -->
@@ -292,7 +353,7 @@
                         </div>
                         <div class="care-card-content">
                             <h3>Nutrição como Gesto de Amor</h3>
-                            <p>Alimentação balanceada e rações super premium são as maiores garantias de longevidade. O que colocamos no prato hoje define quantos anos saudáveis teremos ao lado deles.</p>
+                            <p>Nutrir é o ato mais primitivo de proteção. Cada grão saudável que oferecemos hoje é um compromisso silencioso que fazemos para garantir mais manhãs de rabos abanando ao nosso lado.</p>
                             <a href="#noticias" class="card-link">Longevidade e Nutrição <span class="arrow">&rarr;</span></a>
                         </div>
                     </div>
@@ -304,7 +365,7 @@
                         </div>
                         <div class="care-card-content">
                             <h3>Prevenir é Proteger o Amanhã</h3>
-                            <p>A sensibilidade ocular e respiratória dos Shih Tzus exige zelo diário. Identificar micro-sinais de dor e realizar check-ups é a voz do cuidado silencioso dos tutores.</p>
+                            <p>Nossos amigos não falam nossa língua, mas expressam sua dor no olhar. Aprender a ler os micro-sinais oculares e respiratórios é a maior prova de empatia e cuidado silencioso que podemos dar.</p>
                             <a href="#noticias" class="card-link">Sinais de Alerta & Prevenção <span class="arrow">&rarr;</span></a>
                         </div>
                     </div>
@@ -316,7 +377,7 @@
                         </div>
                         <div class="care-card-content">
                             <h3>Compreendendo o Silêncio Deles</h3>
-                            <p>Cães expressam medo, estresse e ansiedade com o corpo. Decifrar esses sinais e acolher seus sentimentos constrói uma relação inabalável de confiança e paz.</p>
+                            <p>O comportamento deles é um espelho da alma. Decifrar a linguagem corporal de medo ou ansiedade e acolher esses sentimentos fortalece o vínculo mais seguro de amor e confiança mútua.</p>
                             <a href="#noticias" class="card-link">Compreensão & Confiança <span class="arrow">&rarr;</span></a>
                         </div>
                     </div>
@@ -328,7 +389,7 @@
                         </div>
                         <div class="care-card-content">
                             <h3>Estímulos para uma Mente Feliz</h3>
-                            <p>Brinquedos inteligentes e desafios olfativas mantêm o cérebro jovem e ativo. Dar ao cão um propósito diário previne o tédio e mantém o brilho dos olhos de filhote.</p>
+                            <p>Um cérebro ativo é um cérebro jovem. Desafios olfativos e brinquedos inteligentes devolvem a eles o prazer da descoberta, mantendo para sempre aquele brilho curioso de quando eram filhotes.</p>
                             <a href="#noticias" class="card-link">Mente Ativa & Brincadeiras <span class="arrow">&rarr;</span></a>
                         </div>
                     </div>
@@ -338,9 +399,9 @@
                 <div class="calculator-wrapper reveal-item">
                     <div class="calculator-container">
                         <div class="calc-info">
-                            <span class="badge">Ferramenta Interativa</span>
-                            <h3>Calculadora de Idade Canina (Shih Tzu)</h3>
-                            <p>Os cães de pequeno porte envelhecem de forma diferente dos cães grandes. Insira a idade real do seu Shih Tzu abaixo para descobrir seu equivalente em anos humanos e receber conselhos de saúde especializados.</p>
+                            <span class="badge">Tempo de Vida</span>
+                            <h3>Calculadora de Maturidade Canina</h3>
+                            <p>O tempo dos cães passa em um ritmo diferente do nosso, mas a maturidade deles traz uma beleza única. Calcule a idade do seu companheiro para entender o momento de vida dele e receber conselhos para fazê-lo se sentir sempre jovem.</p>
                         </div>
                         <div class="calc-box">
                             <div class="form-group">
@@ -412,9 +473,9 @@
         <section id="noticias" class="section noticias-section">
             <div class="container">
                 <div class="section-header">
-                    <span class="badge">Artigos & Divulgação Científica</span>
+                    <span class="badge">Ciência Com Alma</span>
                     <h2 class="section-title">Ciência e Biologia Canina</h2>
-                    <p class="section-subtitle">Pesquisas veterinárias e biológicas traduzidas de maneira simples para auxiliar na saúde do seu melhor amigo.</p>
+                    <p class="section-subtitle">Conhecimento científico é a chave para proteger. Traduzimos as descobertas da medicina veterinária em soluções simples e humanas para melhorar a qualidade de vida do seu cão.</p>
                 </div>
 
                 <div class="articles-grid">
@@ -485,9 +546,9 @@
         <section id="forum" class="section forum-section bg-alt">
             <div class="container">
                 <div class="section-header text-center">
-                    <span class="badge">Comunidade Conectada</span>
+                    <span class="badge">Coração Comunitário</span>
                     <h2 class="section-title">Fórum de Discussões</h2>
-                    <p class="section-subtitle">Esclareça dúvidas sobre tratamentos, cuidados gerais e troque conselhos práticos com a comunidade.</p>
+                    <p class="section-subtitle">Nenhum tutor precisa caminhar sozinho. Faça perguntas, compartilhe seus aprendizados e encontre o apoio de uma comunidade que entende o amor e os desafios de cuidar de um pet.</p>
                 </div>
 
                 <div class="forum-layout">
@@ -503,9 +564,12 @@
 
                         <!-- Logged In Form -->
                         <form id="new-post-form" class="forum-form" style="display: none;">
-                            <div class="form-logged-user">
-                                <span class="user-badge-label">Tutor Ativo:</span>
-                                <span id="logged-user-name" class="user-badge-name">...</span>
+                            <div class="form-logged-user" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 15px;">
+                                <div>
+                                    <span class="user-badge-label">Tutor Ativo:</span>
+                                    <span id="logged-user-name" class="user-badge-name">...</span>
+                                </div>
+                                <button type="button" id="btn-edit-profile" class="btn-link" style="font-size:0.75rem; color:var(--primary); font-weight:600; background:none; border:none; cursor:pointer;">Editar Perfil</button>
                             </div>
                             
                             <div class="form-group">
@@ -558,9 +622,9 @@
         <section id="contato" class="section contato-section">
             <div class="container">
                 <div class="section-header text-center">
-                    <span class="badge">Apoie a Causa</span>
-                    <h2 class="section-title">Donativos & Fale Conosco</h2>
-                    <p class="section-subtitle">Nossa ONG é 100% digital e sem fins lucrativos. Sua ajuda financia materiais de conscientização contra maus-tratos e guias de saúde pet.</p>
+                    <span class="badge">Multiplique o Amor</span>
+                    <h2 class="section-title">Construa Este Legado Conosco</h2>
+                    <p class="section-subtitle">O Instituto Holly é um espaço sem fins lucrativos. Cada contribuição financia materiais educativos gratuitos, campanhas de prevenção e nos ajuda a manter a assistente de IA ativa para acolher milhares de tutores.</p>
                 </div>
 
                 <!-- Donation Card (PIX Widget) -->
@@ -575,7 +639,7 @@
                         <div class="donation-details">
                             <span class="donation-subtitle">Contribuição via PIX</span>
                             <h3>Apoie o Instituto Holly</h3>
-                            <p>Qualquer valor doado nos ajuda a manter a IA ativa sem custos e os materiais didáticos gratuitos no ar.</p>
+                            <p>Qualquer contribuição, por menor que pareça, ajuda a custear nossa infraestrutura tecnológica e garante que guias de saúde essenciais continuem de graça e acessíveis a quem mais precisa.</p>
                             
                             <div class="pix-key-wrapper">
                                 <span class="pix-key-label">Chave PIX E-mail:</span>
