@@ -263,6 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const loggedUserName = document.getElementById('logged-user-name');
     const btnForumLogin = document.getElementById('btn-forum-login');
 
+    // Header User Profile Elements
+    const headerUserProfile = document.getElementById('header-user-profile');
+    const headerUserAvatar = document.getElementById('header-user-avatar');
+    const headerUserName = document.getElementById('header-user-name');
+
     // Estado da sessão do usuário
     let currentUser = null;
 
@@ -303,12 +308,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 newPostForm.style.display = 'flex';
                 loggedUserName.textContent = currentUser.name;
             }
+
+            // Exibir widget de perfil no cabeçalho
+            if (headerUserProfile) {
+                headerUserProfile.style.display = 'flex';
+                headerUserName.textContent = currentUser.name;
+                
+                if (currentUser.avatarUrl && (currentUser.avatarUrl.startsWith('http') || currentUser.avatarUrl.startsWith('data:image'))) {
+                    headerUserAvatar.style.background = 'none';
+                    headerUserAvatar.innerHTML = `<img src="${currentUser.avatarUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    headerUserAvatar.style.background = getAvatarGradient(currentUser.name);
+                    headerUserAvatar.style.color = '#ffffff';
+                    headerUserAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+                }
+            }
         } else {
             authBtnText.textContent = "Entrar";
             authBtn.title = "Entrar na conta";
             
             if (forumLoggedOutMsg) forumLoggedOutMsg.style.display = 'block';
             if (newPostForm) newPostForm.style.display = 'none';
+
+            // Ocultar widget de perfil no cabeçalho
+            if (headerUserProfile) {
+                headerUserProfile.style.display = 'none';
+            }
         }
     }
 
@@ -501,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mapear clique no botão "Editar Perfil"
     document.addEventListener('click', (e) => {
-        if (e.target && e.target.id === 'btn-edit-profile') {
+        if (e.target && (e.target.id === 'btn-edit-profile' || e.target.closest('#header-user-profile'))) {
             if (!currentUser) return;
             editProfileName.value = currentUser.name;
             profileModal.style.display = 'flex';

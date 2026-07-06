@@ -53,6 +53,12 @@
             </nav>
 
             <div class="header-actions">
+                <!-- Logged In User Profile Widget -->
+                <div id="header-user-profile" style="display: none; align-items: center; gap: 8px; margin-right: 12px; cursor: pointer; padding: 4px 8px; border-radius: var(--radius-full); transition: background var(--transition-fast);" title="Ver e editar seu perfil">
+                    <div id="header-user-avatar" class="author-avatar" style="width: 28px; height: 28px; font-size: 0.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;"></div>
+                    <span id="header-user-name" style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;"></span>
+                </div>
+
                 <!-- User Account Button -->
                 <button id="auth-btn" class="btn btn-secondary btn-nav-auth" title="Entrar na conta">
                     <svg class="auth-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
